@@ -4,12 +4,6 @@ import { Card, Flex, Switch } from "antd";
 import Lottie from "react-lottie-player";
 import animationData from "../assets/smart-home-automation.json";
 
-// const MQTT_BROKER =
-//   "wss://6f1c98735bdf4eaba03dc8ef028374d3.s1.eu.hivemq.cloud:8884/mqtt";
-// const MQTT_TOPIC = "home/light";
-// const MQTT_USER = "student";
-// const MQTT_PASS = "Student1";
-
 const MQTT_BROKER = import.meta.env.VITE_MQTT_BROKER;
 const MQTT_TOPIC = import.meta.env.VITE_MQTT_TOPIC;
 const MQTT_USER = import.meta.env.VITE_MQTT_USER;
