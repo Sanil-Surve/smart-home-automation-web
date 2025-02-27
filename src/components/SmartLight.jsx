@@ -1,4 +1,92 @@
-import { useState, useEffect } from "react";
+// import { useState, useEffect } from "react";
+// import mqtt from "mqtt";
+// import { Card, Flex, Switch } from "antd";
+// import Lottie from "react-lottie-player";
+// import animationData from "../assets/bulb-animation.json";
+
+// const MQTT_BROKER = import.meta.env.VITE_MQTT_BROKER;
+// const MQTT_TOPIC = import.meta.env.VITE_MQTT_TOPIC;
+// const MQTT_USER = import.meta.env.VITE_MQTT_USER;
+// const MQTT_PASS = import.meta.env.VITE_MQTT_PASS;
+
+// const SmartLight = () => {
+//   const [status, setStatus] = useState("OFF");
+//   const [client, setClient] = useState(null);
+
+//   useEffect(() => {
+//     const mqttClient = mqtt.connect(MQTT_BROKER, {
+//       username: MQTT_USER,
+//       password: MQTT_PASS,
+//       protocolVersion: 5,
+//       reconnectPeriod: 1000,
+//       keepalive: 60,
+//       clean: true,
+//     });
+
+//     mqttClient.on("connect", () => {
+//       console.log("Connected to MQTT");
+//       mqttClient.subscribe(MQTT_TOPIC);
+//     });
+
+//     mqttClient.on("message", (topic, message) => {
+//       console.log(`Message received on ${topic}:`, message.toString());
+//       setStatus(message.toString());
+//     });
+
+//     mqttClient.on("error", (error) => {
+//       console.error("MQTT Connection Error:", error);
+//     });
+
+//     setClient(mqttClient);
+
+//     return () => {
+//       mqttClient.end();
+//     };
+//   }, []);
+
+//   const toggleLight = (checked) => {
+//     if (client && client.connected) {
+//       const newStatus = checked ? "ON" : "OFF";
+//       client.publish(MQTT_TOPIC, newStatus);
+//       setStatus(newStatus);
+//     } else {
+//       console.error("MQTT client is not connected.");
+//     }
+//   };
+
+//   return (
+//     <Card className="text-center mt-12">
+//       <h1 className="md:text-2xl font-semibold mb-40">Zenith Smart</h1>
+//       <Flex justify="center" align="center">
+//         <Lottie
+//           loop
+//           animationData={animationData}
+//           play
+//           style={{ width: 300, height: 300 }}
+//         />
+//       </Flex>
+
+//       <h3 className="mt-10 ">
+//         Light is <strong>{status}</strong>
+//       </h3>
+//       <Switch
+//         checked={status === "ON"}
+//         onChange={toggleLight}
+//         checkedChildren="ON"
+//         unCheckedChildren="OFF"
+//         className="bg-gray-300"
+//         style={{
+//           backgroundColor: status === "ON" ? "green" : "red",
+//           borderColor: status === "ON" ? "green" : "red",
+//         }}
+//       />
+//     </Card>
+//   );
+// };
+
+// export default SmartLight;
+
+import { useState, useEffect, useRef, useMemo } from "react";
 import mqtt from "mqtt";
 import { Card, Flex, Switch } from "antd";
 import Lottie from "react-lottie-player";
@@ -11,7 +99,8 @@ const MQTT_PASS = import.meta.env.VITE_MQTT_PASS;
 
 const SmartLight = () => {
   const [status, setStatus] = useState("OFF");
-  const [client, setClient] = useState(null);
+  const [isConnected, setIsConnected] = useState(false);
+  const clientRef = useRef(null);
 
   useEffect(() => {
     const mqttClient = mqtt.connect(MQTT_BROKER, {
@@ -24,57 +113,83 @@ const SmartLight = () => {
     });
 
     mqttClient.on("connect", () => {
-      console.log("Connected to MQTT");
+      console.log("✅ Connected to MQTT Broker");
+      setIsConnected(true);
       mqttClient.subscribe(MQTT_TOPIC);
     });
 
     mqttClient.on("message", (topic, message) => {
-      console.log(`Message received on ${topic}:`, message.toString());
+      console.log(`📩 Message received on ${topic}: ${message.toString()}`);
       setStatus(message.toString());
     });
 
     mqttClient.on("error", (error) => {
-      console.error("MQTT Connection Error:", error);
+      console.error("❌ MQTT Connection Error:", error);
+      setIsConnected(false);
     });
 
-    setClient(mqttClient);
+    mqttClient.on("close", () => {
+      console.warn("🔌 MQTT Disconnected");
+      setIsConnected(false);
+    });
+
+    clientRef.current = mqttClient;
 
     return () => {
-      mqttClient.end(); 
+      if (clientRef.current) {
+        clientRef.current.unsubscribe(MQTT_TOPIC);
+        clientRef.current.end(true); // Gracefully disconnect
+      }
     };
   }, []);
 
   const toggleLight = (checked) => {
-    if (client && client.connected) {
-      const newStatus = checked ? "ON" : "OFF";
-      client.publish(MQTT_TOPIC, newStatus);
+    if (!clientRef.current?.connected) {
+      console.error("❌ MQTT client is not connected.");
+      return;
+    }
+
+    const newStatus = checked ? "ON" : "OFF";
+    if (newStatus !== status) {
+      clientRef.current.publish(MQTT_TOPIC, newStatus);
       setStatus(newStatus);
-    } else {
-      console.error("MQTT client is not connected.");
     }
   };
 
-  return (
-    <Card className="text-center mt-12">
-      <h1 className="md:text-2xl font-semibold mb-40">Zenith Smart</h1>
-      <Flex justify="center" align="center">
-        <Lottie
-          loop
-          animationData={animationData}
-          play
-          style={{ width: 300, height: 300 }}
-        />
-      </Flex>
+  const LightAnimation = useMemo(
+    () => (
+      <div className="w-72 h-72 rounded-full overflow-hidden border-4 border-gray-300 shadow-lg flex items-center justify-center">
+        <Lottie loop animationData={animationData} play style={{ width: "100%", height: "100%" }} />
+      </div>
+    ),
+    []
+  );
 
-      <h3 className="mt-10 ">
-        Light is <strong>{status}</strong>
+  return (
+    <Card className="text-center mt-12 p-6 shadow-lg rounded-xl bg-white dark:bg-gray-800">
+      <h1 className="md:text-2xl font-semibold mb-10 text-gray-800 dark:text-gray-200">
+        Zenith Smart
+      </h1>
+
+      <Flex justify="center" align="center">{LightAnimation}</Flex>
+
+      <h3 className="mt-10 text-lg text-gray-700 dark:text-gray-300">
+        Light is <strong className="text-blue-600">{status}</strong>
       </h3>
+
+      <h3 className="mt-5 text-gray-600">
+        MQTT Status:{" "}
+        <span className={isConnected ? "text-green-500" : "text-red-500"}>
+          {isConnected ? "Connected" : "Disconnected"}
+        </span>
+      </h3>
+
       <Switch
         checked={status === "ON"}
         onChange={toggleLight}
         checkedChildren="ON"
         unCheckedChildren="OFF"
-        className="bg-gray-300"
+        className="mt-5"
         style={{
           backgroundColor: status === "ON" ? "green" : "red",
           borderColor: status === "ON" ? "green" : "red",
