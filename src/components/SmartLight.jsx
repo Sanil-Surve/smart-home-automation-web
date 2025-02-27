@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import mqtt from "mqtt";
 import { Card, Flex, Switch } from "antd";
 import Lottie from "react-lottie-player";
-import animationData from "../assets/smart-home-automation.json";
+import animationData from "../assets/bulb-animation.json";
 
 const MQTT_BROKER = import.meta.env.VITE_MQTT_BROKER;
 const MQTT_TOPIC = import.meta.env.VITE_MQTT_TOPIC;
@@ -40,7 +40,7 @@ const SmartLight = () => {
     setClient(mqttClient);
 
     return () => {
-      mqttClient.end(); // Disconnect on unmount
+      mqttClient.end(); 
     };
   }, []);
 
@@ -66,7 +66,7 @@ const SmartLight = () => {
         />
       </Flex>
 
-      <h3 className="mt-10">
+      <h3 className="mt-10 ">
         Light is <strong>{status}</strong>
       </h3>
       <Switch
