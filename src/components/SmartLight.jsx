@@ -56,7 +56,7 @@ const SmartLight = () => {
 
   return (
     <Card className="text-center mt-12">
-      <h1 className="md:text-2xl font-semibold mb-40">Smart Home Automation</h1>
+      <h1 className="md:text-2xl font-semibold mb-40">Zenith Smart</h1>
       <Flex justify="center" align="center">
         <Lottie
           loop
