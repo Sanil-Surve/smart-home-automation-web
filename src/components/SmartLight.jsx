@@ -84,7 +84,7 @@ const SmartLight = () => {
 
   return (
     <Card className="text-center mt-12 p-6 shadow-lg rounded-xl bg-gray-800">
-      <h1 className="md:text-2xl font-semibold mb-10 text-gray-800 dark:text-gray-200">
+      <h1 className="md:text-2xl font-semibold mb-10 text-gray-200">
         Zenith Smart
       </h1>
 
@@ -92,11 +92,11 @@ const SmartLight = () => {
         {LightAnimation}
       </Flex>
 
-      <h3 className="mt-10 text-lg text-gray-700 dark:text-gray-300">
+      <h3 className="mt-10 text-lg text-gray-300">
         Light is <strong className="text-blue-600">{status}</strong>
       </h3>
 
-      <h3 className="mt-5 text-gray-600">
+      <h3 className="mt-5 text-gray-300">
         MQTT Status:{" "}
         <span className={isConnected ? "text-green-500" : "text-red-500"}>
           {isConnected ? "Connected" : "Disconnected"}
