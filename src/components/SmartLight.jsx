@@ -10,7 +10,7 @@ const MQTT_USER = import.meta.env.VITE_MQTT_USER;
 const MQTT_PASS = import.meta.env.VITE_MQTT_PASS;
 
 const SmartLight = () => {
-  const [status, setStatus] = useState("OFF");
+  const [status, setStatus] = useState("");
   const [isConnected, setIsConnected] = useState(false);
   const clientRef = useRef(null);
 
