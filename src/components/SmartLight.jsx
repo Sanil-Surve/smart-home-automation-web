@@ -83,7 +83,7 @@ const SmartLight = () => {
   );
 
   return (
-    <Card className="text-center mt-12 p-6 shadow-lg rounded-xl bg-white dark:bg-gray-800">
+    <Card className="text-center mt-12 p-6 shadow-lg rounded-xl dark:bg-gray-800">
       <h1 className="md:text-2xl font-semibold mb-10 text-gray-800 dark:text-gray-200">
         Zenith Smart
       </h1>
