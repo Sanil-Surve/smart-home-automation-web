@@ -55,30 +55,30 @@ const SmartLight = () => {
     };
   }, []);
 
-  // const toggleLight = (checked) => {
-  //   if (!clientRef.current?.connected) {
-  //     console.error("❌ MQTT client is not connected.");
-  //     return;
-  //   }
-
-  //   const newStatus = checked ? "ON" : "OFF";
-  //   if (newStatus !== status) {
-  //     clientRef.current.publish(MQTT_TOPIC, newStatus);
-  //     setStatus(newStatus);
-  //   }
-  // };
-
   const toggleLight = (checked) => {
     if (!clientRef.current?.connected) {
       console.error("❌ MQTT client is not connected.");
       return;
     }
-  
-    // Fix: Ensure ON state corresponds to the correct status
-    const newStatus = checked ? "OFF" : "ON"; // Swap ON/OFF
-    clientRef.current.publish(MQTT_TOPIC, newStatus);
-    setStatus(newStatus);
+
+    const newStatus = checked ? "ON" : "OFF";
+    if (newStatus !== status) {
+      clientRef.current.publish(MQTT_TOPIC, newStatus);
+      setStatus(newStatus);
+    }
   };
+
+  // const toggleLight = (checked) => {
+  //   if (!clientRef.current?.connected) {
+  //     console.error("❌ MQTT client is not connected.");
+  //     return;
+  //   }
+  
+  //   // Fix: Ensure ON state corresponds to the correct status
+  //   const newStatus = checked ? "OFF" : "ON"; // Swap ON/OFF
+  //   clientRef.current.publish(MQTT_TOPIC, newStatus);
+  //   setStatus(newStatus);
+  // };
 
   const LightAnimation = useMemo(
     () => (
