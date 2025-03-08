@@ -10,7 +10,7 @@ const MQTT_USER = import.meta.env.VITE_MQTT_USER;
 const MQTT_PASS = import.meta.env.VITE_MQTT_PASS;
 
 const SmartLight = () => {
-  const [status, setStatus] = useState("");
+  const [status, setStatus] = useState("OFF");
   const [isConnected, setIsConnected] = useState(false);
   const clientRef = useRef(null);
 
@@ -68,17 +68,6 @@ const SmartLight = () => {
     }
   };
 
-  // const toggleLight = (checked) => {
-  //   if (!clientRef.current?.connected) {
-  //     console.error("❌ MQTT client is not connected.");
-  //     return;
-  //   }
-  
-  //   // Fix: Ensure ON state corresponds to the correct status
-  //   const newStatus = checked ? "OFF" : "ON"; // Swap ON/OFF
-  //   clientRef.current.publish(MQTT_TOPIC, newStatus);
-  //   setStatus(newStatus);
-  // };
 
   const LightAnimation = useMemo(
     () => (
@@ -97,7 +86,7 @@ const SmartLight = () => {
   return (
     <Card className="text-center mt-12 p-6 shadow-lg rounded-xl bg-gray-800">
       <h1 className="md:text-2xl font-semibold mb-10 text-gray-200">
-        Zenith Smart
+        BE Major Project
       </h1>
 
       <Flex justify="center" align="center">
@@ -105,7 +94,7 @@ const SmartLight = () => {
       </Flex>
 
       <h3 className="mt-10 text-lg text-gray-300">
-        Light Bulb <strong className="text-blue-600">{status}</strong>
+        Light Bulb: <strong className={status === "ON" ? "text-green-500" : "text-red-500"}>{status}</strong>
       </h3>
 
       <h3 className="mt-5 text-gray-300">
