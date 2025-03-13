@@ -5,12 +5,14 @@ import Lottie from "react-lottie-player";
 import animationData from "../assets/bulb-animation.json";
 
 const MQTT_BROKER = import.meta.env.VITE_MQTT_BROKER;
-const MQTT_TOPIC = import.meta.env.VITE_MQTT_TOPIC;
+const MQTT_LIGHT_TOPIC = import.meta.env.VITE_MQTT_LIGHT_TOPIC;
+const MQTT_FAN_TOPIC = import.meta.env.VITE_MQTT_FAN_TOPIC;
 const MQTT_USER = import.meta.env.VITE_MQTT_USER;
 const MQTT_PASS = import.meta.env.VITE_MQTT_PASS;
 
 const SmartLight = () => {
-  const [status, setStatus] = useState("OFF");
+  const [lightStatus, setLightStatus] = useState("OFF");
+  const [fanStatus, setFanStatus] = useState("OFF");
   const [isConnected, setIsConnected] = useState(false);
   const clientRef = useRef(null);
 
@@ -27,12 +29,16 @@ const SmartLight = () => {
     mqttClient.on("connect", () => {
       console.log("✅ Connected to MQTT Broker");
       setIsConnected(true);
-      mqttClient.subscribe(MQTT_TOPIC);
+      mqttClient.subscribe([MQTT_LIGHT_TOPIC, MQTT_FAN_TOPIC]);
     });
 
     mqttClient.on("message", (topic, message) => {
       console.log(`📩 Message received on ${topic}: ${message.toString()}`);
-      setStatus(message.toString());
+      if (topic === MQTT_LIGHT_TOPIC) {
+        setLightStatus(message.toString());
+      } else if (topic === MQTT_FAN_TOPIC) {
+        setFanStatus(message.toString());
+      }
     });
 
     mqttClient.on("error", (error) => {
@@ -49,25 +55,31 @@ const SmartLight = () => {
 
     return () => {
       if (clientRef.current) {
-        clientRef.current.unsubscribe(MQTT_TOPIC);
+        clientRef.current.unsubscribe([MQTT_LIGHT_TOPIC, MQTT_FAN_TOPIC]);
         clientRef.current.end(true);
       }
     };
   }, []);
 
-  const toggleLight = (checked) => {
+  const toggleDevice = (device, checked) => {
     if (!clientRef.current?.connected) {
       console.error("❌ MQTT client is not connected.");
       return;
     }
 
     const newStatus = checked ? "ON" : "OFF";
-    if (newStatus !== status) {
-      clientRef.current.publish(MQTT_TOPIC, newStatus);
-      setStatus(newStatus);
+    const topic = device === "light" ? MQTT_LIGHT_TOPIC : MQTT_FAN_TOPIC;
+    const currentStatus = device === "light" ? lightStatus : fanStatus;
+
+    if (newStatus !== currentStatus) {
+      clientRef.current.publish(topic, newStatus);
+      if (device === "light") {
+        setLightStatus(newStatus);
+      } else {
+        setFanStatus(newStatus);
+      }
     }
   };
-
 
   const LightAnimation = useMemo(
     () => (
@@ -85,44 +97,54 @@ const SmartLight = () => {
 
   return (
     <Card className="text-center mt-12 p-6 shadow-lg rounded-xl bg-gray-800">
-      <h1 className="md:text-2xl font-semibold mb-10 text-gray-200">
-        BE Major Project
-      </h1>
+      <h1 className="md:text-2xl font-semibold mb-10 text-black-200">BE Major Project</h1>
 
-      <Flex justify="center" align="center">
-        {LightAnimation}
-      </Flex>
+      <Flex justify="center" align="center">{LightAnimation}</Flex>
 
-      <h3 className="mt-10 text-lg text-gray-300">
-        Light Bulb: <strong className={status === "ON" ? "text-green-500" : "text-red-500"}>{status}</strong>
-      </h3>
-
-      <h3 className="mt-5 text-gray-300">
-        MQTT Status:{" "}
-        <span className={isConnected ? "text-green-500" : "text-red-500"}>
-          {isConnected ? "Connected" : "Disconnected"}
-        </span>
+      <h3 className="mt-10 text-lg text-black-300">
+        Light Bulb: <strong className={lightStatus === "ON" ? "text-green-500" : "text-red-500"}>{lightStatus}</strong>
       </h3>
 
       <Switch
-        checked={status === "ON"}
-        onChange={toggleLight}
+        checked={lightStatus === "ON"}
+        onChange={(checked) => toggleDevice("light", checked)}
         checkedChildren="ON"
         unCheckedChildren="OFF"
         className="mt-5"
         style={{
-          backgroundColor: status === "ON" ? "green" : "red",
-          borderColor: status === "ON" ? "green" : "red",
-          transform: "scale(1.5)", 
-          padding: "8px", 
+          backgroundColor: lightStatus === "ON" ? "green" : "red",
+          borderColor: lightStatus === "ON" ? "green" : "red",
+          transform: "scale(1.5)",
+          padding: "8px",
         }}
       />
+
+      <h3 className="mt-10 text-lg text-black-300">
+        Fan: <strong className={fanStatus === "ON" ? "text-green-500" : "text-red-500"}>{fanStatus}</strong>
+      </h3>
+
+      <Switch
+        checked={fanStatus === "ON"}
+        onChange={(checked) => toggleDevice("fan", checked)}
+        checkedChildren="ON"
+        unCheckedChildren="OFF" 
+        className="mt-5"
+        style={{
+          backgroundColor: fanStatus === "ON" ? "green" : "red",
+          borderColor: fanStatus === "ON" ? "green" : "red",
+          transform: "scale(1.5)",
+          padding: "8px",
+        }}
+      />
+
+      <h3 className="mt-5 text-black-300">
+        MQTT Status: <span className={isConnected ? "text-green-500" : "text-red-500"}>{isConnected ? "Connected" : "Disconnected"}</span>
+      </h3>
     </Card>
   );
 };
 
 export default SmartLight;
-
 
 
 
