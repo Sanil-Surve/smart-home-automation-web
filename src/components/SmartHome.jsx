@@ -10,7 +10,7 @@ const MQTT_FAN_TOPIC = import.meta.env.VITE_MQTT_FAN_TOPIC;
 const MQTT_USER = import.meta.env.VITE_MQTT_USER;
 const MQTT_PASS = import.meta.env.VITE_MQTT_PASS;
 
-const SmartLight = () => {
+const SmartHome = () => {
   const [lightStatus, setLightStatus] = useState("OFF");
   const [fanStatus, setFanStatus] = useState("OFF");
   const [isConnected, setIsConnected] = useState(false);
@@ -144,7 +144,7 @@ const SmartLight = () => {
   );
 };
 
-export default SmartLight;
+export default SmartHome;
 
 
 

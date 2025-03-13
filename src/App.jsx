@@ -1,7 +1,7 @@
-import SmartLight from "./components/SmartLight"
+import SmartHome from "./components/SmartHome"
 
 function App() {
-  return <SmartLight />
+  return <SmartHome />
 }
 
 export default App
