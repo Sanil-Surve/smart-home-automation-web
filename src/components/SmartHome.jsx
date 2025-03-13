@@ -2,7 +2,8 @@ import { useState, useEffect, useRef, useMemo } from "react";
 import mqtt from "mqtt";
 import { Card, Flex, Switch } from "antd";
 import Lottie from "react-lottie-player";
-import animationData from "../assets/bulb-animation.json";
+import lightData from "../assets/bulb-animation.json";
+import fanData from "../assets/fan.json";
 
 const MQTT_BROKER = import.meta.env.VITE_MQTT_BROKER;
 const MQTT_LIGHT_TOPIC = import.meta.env.VITE_MQTT_LIGHT_TOPIC;
@@ -86,7 +87,21 @@ const SmartHome = () => {
       <div className="w-72 h-72 rounded-full overflow-hidden border-4 border-gray-300 shadow-lg flex items-center justify-center">
         <Lottie
           loop
-          animationData={animationData}
+          animationData={lightData}
+          play
+          style={{ width: "100%", height: "100%" }}
+        />
+      </div>
+    ),
+    []
+  );
+
+  const FanAnimation = useMemo(
+    () => (
+      <div className="w-72 h-72 rounded-full overflow-hidden border-4 border-gray-300 shadow-lg flex items-center justify-center">
+        <Lottie
+          loop
+          animationData={fanData}
           play
           style={{ width: "100%", height: "100%" }}
         />
@@ -97,12 +112,21 @@ const SmartHome = () => {
 
   return (
     <Card className="text-center mt-12 p-6 shadow-lg rounded-xl bg-gray-800">
-      <h1 className="md:text-2xl font-semibold mb-10 text-black-200">BE Major Project</h1>
+      <h1 className="md:text-2xl font-semibold mb-10 text-black-200">
+        BE Major Project
+      </h1>
 
-      <Flex justify="center" align="center">{LightAnimation}</Flex>
+      <Flex justify="center" align="center">
+        {LightAnimation}
+      </Flex>
 
       <h3 className="mt-10 text-lg text-black-300">
-        Light Bulb: <strong className={lightStatus === "ON" ? "text-green-500" : "text-red-500"}>{lightStatus}</strong>
+        Light Bulb:{" "}
+        <strong
+          className={lightStatus === "ON" ? "text-green-500" : "text-red-500"}
+        >
+          {lightStatus}
+        </strong>
       </h3>
 
       <Switch
@@ -119,15 +143,24 @@ const SmartHome = () => {
         }}
       />
 
+      <Flex justify="center" align="center">
+        {FanAnimation}
+      </Flex>
+
       <h3 className="mt-10 text-lg text-black-300">
-        Fan: <strong className={fanStatus === "ON" ? "text-green-500" : "text-red-500"}>{fanStatus}</strong>
+        Fan:{" "}
+        <strong
+          className={fanStatus === "ON" ? "text-green-500" : "text-red-500"}
+        >
+          {fanStatus}
+        </strong>
       </h3>
 
       <Switch
         checked={fanStatus === "ON"}
         onChange={(checked) => toggleDevice("fan", checked)}
         checkedChildren="ON"
-        unCheckedChildren="OFF" 
+        unCheckedChildren="OFF"
         className="mt-5"
         style={{
           backgroundColor: fanStatus === "ON" ? "green" : "red",
@@ -138,13 +171,13 @@ const SmartHome = () => {
       />
 
       <h3 className="mt-5 text-black-300">
-        MQTT Status: <span className={isConnected ? "text-green-500" : "text-red-500"}>{isConnected ? "Connected" : "Disconnected"}</span>
+        MQTT Status:{" "}
+        <span className={isConnected ? "text-green-500" : "text-red-500"}>
+          {isConnected ? "Connected" : "Disconnected"}
+        </span>
       </h3>
     </Card>
   );
 };
 
 export default SmartHome;
-
-
-
