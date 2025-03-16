@@ -213,6 +213,7 @@ const SmartHome = () => {
     });
 
     mqttClient.on("connect", () => {
+      console.log("✅ Connected to MQTT");
       setIsConnected(true);
       mqttClient.subscribe([MQTT_LIGHT_TOPIC, MQTT_FAN_TOPIC]);
     });
