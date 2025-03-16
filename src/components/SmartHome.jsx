@@ -219,6 +219,7 @@ const SmartHome = () => {
     });
 
     mqttClient.on("message", (topic, message) => {
+      console.log(`📩 Message received on ${topic}: ${message.toString()}`);
       if (topic === MQTT_LIGHT_TOPIC) {
         setLightStatus(message.toString());
       } else if (topic === MQTT_FAN_TOPIC) {
