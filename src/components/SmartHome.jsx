@@ -248,7 +248,7 @@ const SmartHome = () => {
   };
 
   const renderAnimation = (data) => (
-    <div className="w-64 h-64 rounded-full border-4 border-gray-300 shadow-md flex items-center justify-center">
+    <div className="w-64 h-64 flex items-center justify-center">
       <Lottie loop animationData={data} play className="w-full h-full" />
     </div>
   );
