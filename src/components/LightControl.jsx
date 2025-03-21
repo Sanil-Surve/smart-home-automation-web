@@ -9,6 +9,7 @@ const LightControl = ({ toggleDevice }) => {
 
   return (
     <Card className="text-center p-4 shadow-md rounded-md bg-gray-800 text-white">
+        <h2 className="text-2xl font-semibold">Bedroom</h2>
       <Flex justify="center">
         <div className="w-64 h-64 flex items-center justify-center">
           <Lottie loop animationData={lightData} play className="w-full h-full" />
