@@ -1,18 +1,7 @@
-// import { configureStore } from "@reduxjs/toolkit";
-// import mqttReducer from "./mqttSlice";
-
-// export const store = configureStore({
-//   reducer: {
-//     mqtt: mqttReducer,
-//   },
-// });
-
-// export default store;
-
 import { configureStore } from "@reduxjs/toolkit";
 import mqttReducer from "./mqttSlice";
 import { persistStore, persistReducer } from "redux-persist";
-import storage from "redux-persist/lib/storage"; // Local Storage
+import storage from "redux-persist/lib/storage"; 
 import { combineReducers } from "redux";
 
 const persistConfig = {
