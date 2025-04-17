@@ -1,7 +1,7 @@
 // import { useEffect, useRef } from "react";
 // import mqtt from "mqtt";
 // import { useDispatch } from "react-redux";
-// import { setLightStatus, setFanStatus, setConnectionStatus } from "../store/mqttSlice";
+// import { setStatus, setConnectionStatus } from "../store/mqttSlice";
 
 // const MQTT_BROKER = import.meta.env.VITE_MQTT_BROKER;
 // const MQTT_LIGHT_TOPIC = import.meta.env.VITE_MQTT_LIGHT_TOPIC;
@@ -31,10 +31,11 @@
 
 //     mqttClient.on("message", (topic, message) => {
 //       console.log(`📩 Message received on ${topic}: ${message.toString()}`);
+//       const status = message.toString();
 //       if (topic === MQTT_LIGHT_TOPIC) {
-//         dispatch(setLightStatus(message.toString()));
+//         dispatch(setStatus({ device: "light", status }));
 //       } else if (topic === MQTT_FAN_TOPIC) {
-//         dispatch(setFanStatus(message.toString()));
+//         dispatch(setStatus({ device: "fan", status }));
 //       }
 //     });
 
@@ -51,16 +52,11 @@
 
 //   const toggleDevice = (device, checked) => {
 //     if (!clientRef.current?.connected) return;
-//     const newStatus = checked ? "ON" : "OFF";
+//     const status = checked ? "ON" : "OFF";
 //     const topic = device === "light" ? MQTT_LIGHT_TOPIC : MQTT_FAN_TOPIC;
 
-//     clientRef.current.publish(topic, newStatus);
-
-//     if (device === "light") {
-//       dispatch(setLightStatus(newStatus));
-//     } else {
-//       dispatch(setFanStatus(newStatus));
-//     }
+//     clientRef.current.publish(topic, status);
+//     dispatch(setStatus({ device, status }));
 //   };
 
 //   return { toggleDevice };
@@ -72,11 +68,17 @@
 import { useEffect, useRef } from "react";
 import mqtt from "mqtt";
 import { useDispatch } from "react-redux";
-import { setStatus, setConnectionStatus } from "../store/mqttSlice";
+import {
+  setStatus,
+  setConnectionStatus,
+  setSensorData,
+} from "../store/mqttSlice";
 
 const MQTT_BROKER = import.meta.env.VITE_MQTT_BROKER;
 const MQTT_LIGHT_TOPIC = import.meta.env.VITE_MQTT_LIGHT_TOPIC;
 const MQTT_FAN_TOPIC = import.meta.env.VITE_MQTT_FAN_TOPIC;
+const MQTT_TEMP_TOPIC = import.meta.env.VITE_MQTT_TEMP_TOPIC;
+const MQTT_HUMIDITY_TOPIC = import.meta.env.VITE_MQTT_HUMIDITY_TOPIC;
 const MQTT_USER = import.meta.env.VITE_MQTT_USER;
 const MQTT_PASS = import.meta.env.VITE_MQTT_PASS;
 
@@ -97,16 +99,26 @@ const useMQTTClient = () => {
     mqttClient.on("connect", () => {
       console.log("✅ Connected to MQTT Broker");
       dispatch(setConnectionStatus(true));
-      mqttClient.subscribe([MQTT_LIGHT_TOPIC, MQTT_FAN_TOPIC]);
+      mqttClient.subscribe([
+        MQTT_LIGHT_TOPIC,
+        MQTT_FAN_TOPIC,
+        MQTT_TEMP_TOPIC,
+        MQTT_HUMIDITY_TOPIC,
+      ]);
     });
 
     mqttClient.on("message", (topic, message) => {
-      console.log(`📩 Message received on ${topic}: ${message.toString()}`);
-      const status = message.toString();
+      const value = message.toString();
+      console.log(`📩 Message received on ${topic}: ${value}`);
+
       if (topic === MQTT_LIGHT_TOPIC) {
-        dispatch(setStatus({ device: "light", status }));
+        dispatch(setStatus({ device: "light", status: value }));
       } else if (topic === MQTT_FAN_TOPIC) {
-        dispatch(setStatus({ device: "fan", status }));
+        dispatch(setStatus({ device: "fan", status: value }));
+      } else if (topic === MQTT_TEMP_TOPIC) {
+        dispatch(setSensorData({ sensor: "temperature", value }));
+      } else if (topic === MQTT_HUMIDITY_TOPIC) {
+        dispatch(setSensorData({ sensor: "humidity", value }));
       }
     });
 
@@ -116,7 +128,12 @@ const useMQTTClient = () => {
     clientRef.current = mqttClient;
 
     return () => {
-      clientRef.current?.unsubscribe([MQTT_LIGHT_TOPIC, MQTT_FAN_TOPIC]);
+      clientRef.current?.unsubscribe([
+        MQTT_LIGHT_TOPIC,
+        MQTT_FAN_TOPIC,
+        MQTT_TEMP_TOPIC,
+        MQTT_HUMIDITY_TOPIC,
+      ]);
       clientRef.current?.end(true);
     };
   }, [dispatch]);
